@@ -5,6 +5,8 @@ Description:
 -------------
 WebRTC ScreenShare is a real-time collaboration platform that allows users to share their screens and stream video seamlessly. It includes features like chat, audio control, and remote management for enhanced online meetings.
 
+https://github.com/user-attachments/assets/150b6632-b1ae-4327-89b8-35771b7646d5
+
 Features:
 ---------
 - Screen sharing
