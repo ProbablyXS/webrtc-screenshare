@@ -1,13 +1,28 @@
 const express = require('express');
-const http = require('http');
+const https = require('https'); // Change from http to https
 const socketIo = require('socket.io');
 const path = require('path');
+const fs = require('fs'); // To read the certificate files
 
 const app = express();
-const server = http.createServer(app);
+
+// Load your SSL certificate and private key
+const privateKey = fs.readFileSync(path.join(__dirname, 'private-key.txt'), 'utf8');
+const caBundle = fs.readFileSync(path.join(__dirname, 'ca-bundle.txt'), 'utf8');
+
+// Create an HTTPS server with the certificate
+const server = https.createServer({
+    key: privateKey,
+    cert: caBundle
+}, app);
+
 const io = socketIo(server);
 
+// Serve static files from the public directory
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Serve .well-known/acme-challenge for Let's Encrypt validation
+// app.use('/.well-known/acme-challenge', express.static(path.join(__dirname, 'public/.well-known/acme-challenge')));
 
 io.on('connection', (socket) => {
     console.log('New user connected');
@@ -39,5 +54,6 @@ io.on('connection', (socket) => {
     });
 });
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Start the HTTPS server on port 443 (standard HTTPS port) or any other port
+const PORT = process.env.PORT || 443;
+server.listen(PORT, () => console.log(`Secure server running on port ${PORT}`));

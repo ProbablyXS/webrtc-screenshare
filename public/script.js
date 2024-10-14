@@ -2,13 +2,24 @@ const socket = io();
 let localStream;
 let remoteStream;
 let peerConnection;
-let remoteAudioMuted = false; // Track the remote audio state
+let remoteAudioMuted = false; 
 
 const roomInput = document.getElementById('roomInput');
 const joinRoomButton = document.getElementById('joinRoom');
 const videoContainer = document.getElementById('videoContainer');
 const volumeControl = document.getElementById('volumeControl');
-const remoteVideo = document.getElementById('remoteVideo'); // Reference to remote video
+const remoteVideo = document.getElementById('remoteVideo');
+
+// Public ICE servers configuration (Google STUN server and a few others)
+const iceServers = {
+    iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },  // Google's STUN server
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun2.l.google.com:19302' },
+        { urls: 'stun:stun3.l.google.com:19302' },
+        { urls: 'stun:stun4.l.google.com:19302' }
+    ]
+};
 
 joinRoomButton.onclick = () => {
     const roomName = roomInput.value;
@@ -31,7 +42,7 @@ async function startScreenShare() {
         });
         document.getElementById('localVideo').srcObject = localStream;
 
-        peerConnection = new RTCPeerConnection();
+        peerConnection = new RTCPeerConnection(iceServers);
 
         localStream.getTracks().forEach(track => {
             peerConnection.addTrack(track, localStream);
@@ -46,8 +57,6 @@ async function startScreenShare() {
         peerConnection.ontrack = event => {
             remoteStream = event.streams[0];
             remoteVideo.srcObject = remoteStream;
-
-            // Initialize volume control when remote stream is set
             updateVolumeControl();
         };
 
@@ -61,7 +70,7 @@ async function startScreenShare() {
 
 socket.on('offer', async (data) => {
     if (!peerConnection) {
-        peerConnection = new RTCPeerConnection();
+        peerConnection = new RTCPeerConnection(iceServers);
         peerConnection.onicecandidate = event => {
             if (event.candidate) {
                 socket.emit('iceCandidate', { candidate: event.candidate, room: roomInput.value });
@@ -71,9 +80,6 @@ socket.on('offer', async (data) => {
         peerConnection.ontrack = event => {
             remoteStream = event.streams[0];
             remoteVideo.srcObject = remoteStream;
-
-            // Initialize volume control when remote stream is set
-            updateVolumeControl();
         };
     }
 
@@ -153,21 +159,20 @@ document.getElementById('unmuteRemote').onclick = () => {
 
 // Volume Control Slider
 volumeControl.oninput = () => {
-    const volume = parseFloat(volumeControl.value); // Get value from slider
-    remoteVideo.volume = volume; // Set the volume of the remote video
-    const percentage = Math.round(volume * 100); // Convert to percentage
-    document.getElementById('volumePercentage').textContent = `${percentage}%`; // Display percentage
+    const volume = parseFloat(volumeControl.value); 
+    remoteVideo.volume = volume;
+    const percentage = Math.round(volume * 100); 
+    document.getElementById('volumePercentage').textContent = `${percentage}%`; 
     console.log('Set remote audio volume:', volume);
 };
-
 
 // Fullscreen toggle
 document.getElementById('fullscreenToggle').onclick = () => {
     if (remoteVideo.requestFullscreen) {
         remoteVideo.requestFullscreen();
-    } else if (remoteVideo.webkitRequestFullscreen) { // Safari
+    } else if (remoteVideo.webkitRequestFullscreen) { 
         remoteVideo.webkitRequestFullscreen();
-    } else if (remoteVideo.msRequestFullscreen) { // IE11
+    } else if (remoteVideo.msRequestFullscreen) { 
         remoteVideo.msRequestFullscreen();
     }
 };
