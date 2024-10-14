@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen Sharing App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <div>
+            <input id="roomInput" placeholder="Enter room name">
+            <button id="joinRoom">Join Room</button>
+        </div>
+        <div id="videoContainer">
+            <video id="localVideo" muted autoplay></video>
+            <video id="remoteVideo" autoplay></video>
+        </div>
+        <div id="controls">
+            <button id="startShare">Start Screen Share</button>
+            <button id="stopShare">Stop Screen Share</button>
+            <button id="mute">Mute Me</button>
+            <button id="unmute">Unmute Me</button>
+            <button id="muteRemote">Mute Remote Audio</button>
+            <button id="unmuteRemote">Unmute Remote Audio</button>
+            <div id="volumeControlContainer">
+                <input type="range" id="volumeControl" min="0" max="1" step="0.1" value="1">
+                <span id="volumePercentage">100%</span>
+            </div>
+             
+            <button id="fullscreenToggle">Toggle Fullscreen</button> <!-- Fullscreen Button -->
+        </div>
+        <input id="messageInput" placeholder="Type a message...">
+        <button id="sendMessage">Send</button>
+        <div id="chat"></div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
